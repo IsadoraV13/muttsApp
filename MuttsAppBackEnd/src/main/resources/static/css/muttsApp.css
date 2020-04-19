@@ -1,0 +1,317 @@
+* {
+    /* box-sizing: border-box; */
+    text-rendering: optimizeLegibility;
+}
+/* body is the container for everything on the screen and takes
+100% of the screen (adjusts to different devices)*/
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+/* header is the banner at the top */
+header {
+    height: 75px;
+    width: 100vw;
+    display: flex;
+    background-color: #ededed;
+}
+
+#header-sidebar {
+    width: 35%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    border-right: 1px solid grey;
+    align-items: center;
+}
+
+#profile-pic {
+    width: 15%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#header-sidebar-icons {
+    height: 100%;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: row;
+}
+
+#header-sidebar-icons ul {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+
+#header-sidebar-icons ul li {
+    list-style-type: none;
+}
+
+#header-sidebar-icons button {
+    border: none;
+    background-color: inherit;
+}
+
+#header-main {
+    width: 65%;
+    height: 100%;
+    display: flex;
+
+}
+
+#recipient-image {
+    width: 9%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#recipient-number {
+    width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+#header-main-icons {
+    height: 100%;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+#header-main-icons ul {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+
+#header-main-icons ul li {
+    list-style-type: none;
+}
+
+#header-main-icons button {
+    border: none;
+    background-color: inherit;
+}
+
+
+/* main H content emcompasses left sidebar and right main/current chat */
+.main-horizontal-content {
+    width: 100vw;
+    height: calc(100vh - 75px);
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.left-sidebar {
+    width: 35%; /* 40% of parent (main H content) */
+    height: 100%; /* full height of parent (main H content) */
+}
+/* container that 'wraps around' all message previews */
+.left-sidebar > .message-preview-wrap {
+    background-color:#ffffff;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    overflow-y: scroll;
+}
+
+/* each individual message preview box */
+.message-preview-wrap > .individual-msg-preview-box {
+    background-color: #ffffff;
+    width: 100%;
+    height: 100px;
+    display: flex;
+    flex-direction: row; /* default */
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.individual-msg-preview-box:hover {
+    background-color: #f5f5f5;
+}
+
+.individual-msg-preview-box > .img-wrap {
+    width: 15%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.img-wrap > img {
+    width: 49px;
+    height: 49px;
+    border-radius: 50%;
+}
+
+.individual-msg-preview-box > .message-text-wrap {
+    width: 65%;
+    height: 100%;
+    display: flex;
+    flex-direction: column; /* column view for 1) name and 2) message */
+    align-items: flex-start;
+    justify-content: space-around; /* space items horizontally */
+    border-bottom: 0.1px solid #d9d9d8;
+}
+.message-text-wrap > p {
+    margin: 0;
+}
+
+.individual-msg-preview-box > .date-wrap {
+    width: 15%;
+    height: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    border-bottom: 0.1px solid #d9d9d8;
+}
+
+/* Main Chat */
+.main-chat {
+    width: 65%;
+    height: 100%;
+    background-color: rgba(229, 221, 213, 0.9);
+    display: inline-block;
+    overflow-y: auto;
+    position: relative;
+}
+
+.main-chat:after {
+    content: "";
+    background-image: url('https://web.whatsapp.com/img/bg-chat-tile_9e8a2898faedb7db9bf5638405cf81ae.png');
+    position: absolute;
+    opacity: 0.5;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: -1;
+}
+
+/* This is where you see past messages for this chat */
+.chat-container{
+    height: calc(100% - 70px);
+    width: calc(100% - 40px);
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0 20px;
+    overflow-y: scroll;
+}
+
+/* each chat bubble */
+.chat-bubble {
+    background-color:#ffffff;
+    padding: 0px 7px 0px 9px;
+    border-radius: 10px;
+    margin-bottom: 10px; /* check */
+    max-width: 75%; /* inward messages stick to left and only expand to 75% if content requires it */
+    position: relative;
+}
+
+.chat-bubble:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -10px;
+    /* triangle */
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    border-top-color:#dcf8c6;
+    margin-left: -10px;
+    margin-bottom: -20px;
+}
+
+.chat-bubble.in:before {
+    border-top-color: #ffffff;
+    left: 0;
+}
+
+/* an outward chat message */
+.chat-bubble.out {
+    background-color: #dcf8c6;
+    align-self: flex-end;
+}
+
+.message-box{
+    width: calc(100% - 10px);
+    height: 70px;
+    padding-left: 5px;
+    padding-right: 5px; /* why doesn't this work?*/
+    background-color: #ededed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* this is where you type a new message */
+.message-box .form-wrap {
+    width: 85%;
+    height: 60%;
+    border-radius: 20px;
+    background-color: white;
+}
+
+.message-box .form-wrap form {
+    width: 100%;
+    height: 100%;
+}
+
+input[name="message"] {
+    width: 80%;
+    margin-left: 3%;
+    border: none;
+    font-size: 14px;
+    height: 90%; /* line-height is like line spacing for text based elements */
+}
+
+.svg-wrap {
+    border: none;
+    background-color: #ededed;
+}
+
+#logIn-signUp {
+    width: 100px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    padding: 10px
+
+}
+
+#login-form{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    max-width: 40vw;
+    padding: 10px
+}
+input[type="text"] {
+    max-width: 50%;
+    width: 50%;
+    margin-bottom: 16px;
+}
+input[type="submit"] {
+    background-color: rgb(0, 140, 255);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
