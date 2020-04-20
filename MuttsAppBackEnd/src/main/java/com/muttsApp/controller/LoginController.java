@@ -5,6 +5,7 @@ import com.muttsApp.POJOs.User;
 import com.muttsApp.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -60,5 +61,23 @@ public class LoginController {
         int user_id = loginService.findUserByEmail(auth.getName()).getUserId(); //check this
         model.addAttribute("user_id", user_id);
         return "user";
+    }
+
+    @RequestMapping(value="/user")
+    public String user(Authentication authentication){
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        System.out.println("User has authorities: " + userDetails.getAuthorities());
+        return "user";
+    }
+
+    @RequestMapping(value="/admin")
+    public String admin(Model model){
+        return "admin";
+
+    }
+
+    @RequestMapping(value="/403")
+    public String Error403(){
+        return "403";
     }
 }
