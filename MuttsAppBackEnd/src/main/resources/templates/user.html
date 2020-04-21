@@ -3,19 +3,19 @@
 	  xmlns:th="http://www.thymeleaf.org"
 	  lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<title>Mutts App</title>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	<link rel="stylesheet" href="muttsApp.css">
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+	<link rel="stylesheet" th:href="@{css/muttsApp.css}"/>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
 </head>
 <body>
-<input type="hidden" th:value="${user_id}" id="user_id">
+<input type="hidden" th:value="${user_id}" id="user_id"></input>
 <header>
 	<div id="header-sidebar">
 		<div id="profile-pic" class="img-wrap">
-			<img src="./images/cat.png" alt="my profile picture">
+			<img src="./images/cat.png" alt="my profile picture"/>
 		</div>
 		<div id="header-sidebar-icons">
 			<ul>
@@ -30,8 +30,9 @@
 				</li>
 				<li>
 					<!-- Icon 2 -->
-					<button class="svg-wrap" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-						Launch demo modal
+					<button class="svg-wrap" >
+<!--						Launch demo modal
+type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"-->
 						<svg id="new-chat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
 							<path fill="currentColor"
 								  d="M19.005 3.175H4.674C3.642 3.175 3 3.789 3 4.821V21.02l3.544-3.514h12.461c1.033 0 2.064-1.06 2.064-2.093V4.821c-.001-1.032-1.032-1.646-2.064-1.646zm-4.989 9.869H7.041V11.1h6.975v1.944zm3-4H7.041V7.1h9.975v1.944z">
@@ -54,7 +55,7 @@
 	</div>
 	<div id="header-main">
 		<div id = "recipient-image" class="img-wrap">
-			<img src="" alt="recipient profile picture">
+			<img src="" alt="recipient profile picture"/>
 		</div>
 		<div id = "recipient-number">
 			<p>+44 7608 377689 </p>
@@ -101,7 +102,7 @@
 		<div id="msg-wrap" class="message-preview-wrap">
 			<div class="individual-msg-preview-box">
 				<div class="img-wrap">
-					<img src="./images/cat3.png" alt="cat icon">
+					<img src="./images/cat3.png" alt="cat icon"/>
 				</div>
 				<div class="message-text-wrap">
 					<p>Stranger Danger</p>
@@ -154,7 +155,7 @@
 			</button>
 			<div class="form-wrap">
 				<form id="send-message" data-chat_id="">
-					<input type="text" name="message" id="new-message" placeholder="Type a message" disabled>
+					<input type="text" name="message" id="new-message" placeholder="Type a message" disabled="disabled"></input>
 				</form>
 			</div>
 			<button class="svg-wrap">
@@ -168,7 +169,6 @@
 	</div>
 </div>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="muttsApp.js"></script>
+<script th:src="@{js/muttsApp.js}"></script>
 </body>
-
 </html>
