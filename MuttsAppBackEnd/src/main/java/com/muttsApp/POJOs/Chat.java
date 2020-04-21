@@ -12,10 +12,10 @@ import javax.persistence.*;
 public class Chat {
     private int chatId;
     private String chatName;
-    private int userId;
-    private int recipientId;
+    private int userId; // the user looking at the screen; this is not necessarily the sender
+    private int recipientId; // this should be moved out to a joined table
     private String chatPhotoUrl;
-    private int adminId;
+    private int adminUserId;
     private int lastMessageId; // this should contain the date/timestamp to order the chatPreviews chronologically
 
     public Chat() {
@@ -63,12 +63,12 @@ public class Chat {
         this.chatPhotoUrl = chatPhotoUrl;
     }
 
-    public int getAdminId() {
-        return adminId;
+    public int getAdminUserId() {
+        return adminUserId;
     }
 
-    public void setAdminId(int adminId) {
-        this.adminId = adminId;
+    public void setAdminUserId(int adminUserId) {
+        this.adminUserId = adminUserId;
     }
 
     public int getLastMessageId() {

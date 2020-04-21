@@ -1,36 +1,48 @@
 package com.muttsApp.POJOs;
 
+
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name="user")
+//@SecondaryTable(name = "userrole", pkJoinColumns = @PrimaryKeyJoinColumn(name = "userId"))
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int userId;
-    @NotNull
+    @NotEmpty(message = "Username may not be empty")
     private String userName;
     @Column(columnDefinition = "boolean default 1")
     Boolean enabled;
-    @NotNull
+    @NotEmpty(message = "Password may not be blank")
     private String password;
-    @NotNull
+    @NotEmpty(message = "Email may not be null")
     private String email;
     private String firstName;
     private String lastName;
     private String profilePicUrl;
+//    @Column(name = "roleId", table = "userrole", columnDefinition = "int default 1")
+//    private Integer roleId;
     @ManyToMany(cascade = { CascadeType.ALL })
     @JoinTable(
             name = "userrole",
             joinColumns = { @JoinColumn(name = "userId") },
             inverseJoinColumns = { @JoinColumn(name = "roleId") }
     )
-    Set<Role> userrole = new HashSet<Role>();
+    Set<Role> userrole = new HashSet<>();
+
 
     public User() {
+    }
+
+    public User(String userName, String password, String email) {
+        this.userName = userName;
+        this.password = password;
+        this.email = email;
     }
 
     public int getUserId() {
@@ -104,4 +116,12 @@ public class User {
     public void setUserrole(Set<Role> userrole) {
         this.userrole = userrole;
     }
+
+//    public Integer getRoleId() {
+//        return roleId;
+//    }
+//
+//    public void setRoleId(Integer roleId) {
+//        this.roleId = roleId;
+//    }
 }

@@ -1,6 +1,8 @@
 package com.muttsApp.service;
 
+import com.muttsApp.POJOs.Role;
 import com.muttsApp.POJOs.User;
+import com.muttsApp.repositories.RoleRepository;
 import com.muttsApp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ public class UserService {
 
     @Autowired
     private UserRepository repo;
+    private RoleRepository roleRepo;
 
     // after we have contacts this would only be an admin service
     public List<User> listAllUsers() {
@@ -23,6 +26,10 @@ public class UserService {
     // this would be an admin service (outside of the login service)
     public void saveUser(User user) {
         repo.save(user);
+    }
+
+    public void saveRole(Role role) {
+        roleRepo.save(role);
     }
 
     public User findUserById(int userId) {

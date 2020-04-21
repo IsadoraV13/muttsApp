@@ -16,7 +16,6 @@ public class LoginService {
     private UserRepository repo;
 
     public List<User> listAllUsers() {
-
         return repo.findAll();
     }
 

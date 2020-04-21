@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.sql.DataSource;
  
@@ -20,35 +21,54 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	DataSource dataSource;
  
 	@Autowired
-	public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+	public void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.jdbcAuthentication().dataSource(dataSource)
-				.usersByUsernameQuery("select username, password, 'true' as enabled from user where username = ?")
+				.usersByUsernameQuery("select username, password, 'true' as enabled from user where email = ?")
 				.authoritiesByUsernameQuery("select u.username, r.role " +
 						"from role r " +
 						"join userrole ur " +
 						"on r.roleId = ur.roleId " +
 						"join user u " +
 						"on ur.userId = u.userId " +
-						"where username = ?");
+						"where email = ?");
 	}
  
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http
-				.csrf().disable()
-				.authorizeRequests()
-					.antMatchers("/", "/home", "/users").permitAll()
-	//				.antMatchers("/admin/**").hasRole("ADMIN")
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
-					.loginPage("/login").permitAll()
-					.failureUrl("/login?error=true")
-					.defaultSuccessUrl("/home")
-					.and()
-				.logout().permitAll();
+//		http
+//				.csrf().disable()
+//				.authorizeRequests()
+//					.antMatchers("/", "/home", "/users").permitAll()
+//	//				.antMatchers("/admin/**").hasRole("ADMIN")
+//					.anyRequest().authenticated()
+//					.and()
+//				.formLogin()
+//					.loginPage("/login").permitAll()
+//					.failureUrl("/login?error=true")
+//					.defaultSuccessUrl("/home")
+//					.and()
+//				.logout().permitAll();
+//
+//		http.exceptionHandling().accessDeniedPage("/403");
 
-		http.exceptionHandling().accessDeniedPage("/403");
+		http.
+				authorizeRequests()
+				.antMatchers("/").permitAll()
+				.antMatchers("/login").permitAll()
+				.antMatchers("/registration").permitAll()
+//				.antMatchers("/users/**").hasAuthority(("USER"))
+//				.antMatchers("/admin/**").hasAuthority("ADMIN")
+				.anyRequest().authenticated()
+				.and().csrf().disable().formLogin()
+				.loginPage("/login").failureUrl("/login?error=true")
+				.defaultSuccessUrl("/home")
+				.usernameParameter("email")
+				.passwordParameter("password")
+				.and()
+				.logout()
+				.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+				.logoutSuccessUrl("/").and().exceptionHandling()
+				.accessDeniedPage("/403");
 	}
 
 	@Override
