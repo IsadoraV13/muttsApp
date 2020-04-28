@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.sql.DataSource;
@@ -19,11 +20,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
  
 	@Autowired
 	DataSource dataSource;
+
+	@Autowired
+	BCryptPasswordEncoder bCryptPasswordEncoder;
+
  
 	@Autowired
 	public void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.jdbcAuthentication().dataSource(dataSource)
-				.usersByUsernameQuery("select username, password, 'true' as enabled from user where email = ?")
+		auth.jdbcAuthentication()
+				.dataSource(dataSource)
+				.usersByUsernameQuery("select username, password, enabled from user where email = ?")
 				.authoritiesByUsernameQuery("select u.username, r.role " +
 						"from role r " +
 						"join userrole ur " +
@@ -31,6 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 						"join user u " +
 						"on ur.userId = u.userId " +
 						"where email = ?");
+//				.passwordEncoder(bCryptPasswordEncoder);
 	}
  
 	@Override
@@ -53,8 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http.
 				authorizeRequests()
-				.antMatchers("/").permitAll()
-				.antMatchers("/login").permitAll()
+				.antMatchers("/", "/login", "/users/**", "/chats/**").permitAll()
 				.antMatchers("/registration").permitAll()
 //				.antMatchers("/users/**").hasAuthority(("USER"))
 //				.antMatchers("/admin/**").hasAuthority("ADMIN")

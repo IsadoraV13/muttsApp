@@ -4,7 +4,6 @@ package com.muttsApp.POJOs;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -18,9 +17,9 @@ public class User {
     private String userName;
     @Column(columnDefinition = "boolean default 1")
     Boolean enabled;
-    @NotEmpty(message = "Password may not be blank")
+    @NotEmpty(message = "Passwords are mandatory")
     private String password;
-    @NotEmpty(message = "Email may not be null")
+    @NotEmpty(message = "We need an email address to be able to register you")
     private String email;
     private String firstName;
     private String lastName;
@@ -33,7 +32,15 @@ public class User {
             joinColumns = { @JoinColumn(name = "userId") },
             inverseJoinColumns = { @JoinColumn(name = "roleId") }
     )
-    Set<Role> userrole = new HashSet<>();
+    private Set<Role> userrole;
+
+    @ManyToMany(cascade = { CascadeType.ALL })
+    @JoinTable(
+            name = "userchat",
+            joinColumns = { @JoinColumn(name = "userId") },
+            inverseJoinColumns = { @JoinColumn(name = "chatId") }
+    )
+    private Set<Chat> userchat;
 
 
     public User() {
@@ -117,7 +124,15 @@ public class User {
         this.userrole = userrole;
     }
 
-//    public Integer getRoleId() {
+    public Set<Chat> getUserchat() {
+        return userchat;
+    }
+
+    public void setUserchat(Set<Chat> userchat) {
+        this.userchat = userchat;
+    }
+
+//        public Integer getRoleId() {
 //        return roleId;
 //    }
 //

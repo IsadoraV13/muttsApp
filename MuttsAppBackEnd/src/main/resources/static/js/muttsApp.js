@@ -1,6 +1,6 @@
-let baseUrl = 'http://demo.codingnomads.co:8082/muttsapp';
-//right now we do not have a login function, therefore we will hardcode which userId is accessing the app
-let userId = document.getElementById('user_id');
+let baseUrl = '/users';
+// this is a hidden element that passes the userId into the URL
+let userId = document.getElementById('user_id').value;
 //********************************
 // fetch info for left sidebar
 //********************************
@@ -8,12 +8,12 @@ let userId = document.getElementById('user_id');
 // it takes time to convert the readable stream to Json
 // in the meantime, other things like submitting a new message can happen
 (function getChatPreviews() {
-    fetch(`${baseUrl}/users/${userId}/chats`)
+    fetch(`${baseUrl}/${userId}/msgpreviews`)
         .then(res => res.json())  // fetching the url returns a response, which is then converted to json
         .then(resObj => { // that json response has a body object and =>
-            resObj.data.forEach(chatPreviewObj => { // this object has a data property and under that, an array of 'chatPreview' objects
+            resObj.data.forEach(msgPreviewObj => { // this object has a data property and under that, an array of 'chatPreview' objects
                 // for each chatPreview obj of the chat array, create a preview box with the chatPreview data using the createChatPreview function (further down) that uses the img, message and date
-                createChatPreview(chatPreviewObj);
+                createChatPreview(msgPreviewObj);
             })
         })
 })();
@@ -24,9 +24,11 @@ let userId = document.getElementById('user_id');
 // and then creates each chatBubble for the chat_id clicked
 function chatPreviewClick(event) {
     console.log()
-    let chatId = event.target.dataset.chat_id;
-    let senderId = event.target.dataset.sender_id;
-    fetch(`${baseUrl}/users/${userId}/chats/` + senderId)
+    let chatId = event.target.dataset.chat_id; // assign 'chatId' to the data attribute 'chat_id' that we assigned (in createMsgPreview)
+    // to the various elements of the preview box (these are the targets of the click event) - and which hold the corresponding
+    // chat ids for each preview
+//    let senderId = event.target.dataset.sender_id;
+    fetch(`/chats/${chatId}`)
     .then(res => res.json())
     .then(resObj => {
         // to only get the chat messages relevant to this chat in the chatBubble wrapper, reset the innerHTML to null every time
@@ -40,8 +42,9 @@ function chatPreviewClick(event) {
     // only allow form input after clicking on a chatPreview
     document.getElementById("new-message").removeAttribute("disabled");
 
-    // change chat Pic to match chat clicked on
-    document.querySelector("#recipient-image > img").setAttribute("src", event.target.closest('.individual-msg-preview-box').querySelector('img').src);
+    // change chat Pic to match chat clicked on: find the closest 'individual-msg-preview-box' element to the event target
+    // and set the src attribute of chat-photo>img to the src of that closest element
+    document.querySelector("#chat-photo > img").setAttribute("src", event.target.closest('.individual-msg-preview-box').querySelector('img').src);
 }
 
 //************************************************************
@@ -51,23 +54,22 @@ function chatPreviewClick(event) {
 let messageForm = document.getElementById("send-message");
 
 messageForm.addEventListener('submit', function (event) {
-    console.log(event.target)
     event.preventDefault();
     let newMessage = document.getElementById('new-message').value;
-    let newMsgObj = { // our API documentation says we need a sender_id, a chat_id, and a message
-        sender_id: userId,
-        chat_id: event.target.dataset.chat_id, //how do we get the chat-id?
-        message: newMessage
+    let newMsgObj = { // our API documentation says we need a senderId, a chatId, and a message content
+        senderId: userId,
+        chatId: event.target.dataset.chat_id, //how do we get the chat-id?
+        content: newMessage
     }
     createChatBubble(newMsgObj);
     sendNewMessage(newMsgObj);
-    document.getElementById('new-message').value = "";
+    document.getElementById('new-message').value = ""; //resets form value
 });
 
 //**************************************
 // a POST request to post/send a new msg
 //**************************************
-function sendNewMessage(newMsg) {
+function sendNewMessage(newMsg) { // this message object contains attributes stated in lines 61-63
     // let postData = {
     //     "sender_id": '',
     //     "chat_id": '',
@@ -82,7 +84,8 @@ function sendNewMessage(newMsg) {
         },
         body: JSON.stringify(newMsg)
     }
-    fetch(`${baseUrl}/users/${userId}/chat`, postParams)
+    let chatId = newMsg.chatId;
+    fetch(`/chats/${chatId}/message`, postParams) //`${baseUrl}/${userId}/chat`
          .then(res => res.json())
          .then(res => console.log(res))
 }
@@ -96,7 +99,7 @@ let existingChats_senderId = [];
 let remainingUserIds =[];
 newChatBubble.addEventListener('click', function(event) {
     // Step 1: fetch all possible users
-    fetch(`${baseUrl}/users/`)
+    fetch(`${baseUrl}/`)
     //then extract their user ids
     .then(res => res.json())
     .then(resObj => {
@@ -105,7 +108,7 @@ newChatBubble.addEventListener('click', function(event) {
         console.log(allUserIdArr); // this is incorrect? because all Ids are 0
     })
     // Step 2: extract users we already have chats with
-    fetch(`${baseUrl}/users/${userId}/chats/`)
+    fetch(`${baseUrl}/${userId}/chats/`)
     .then(res => res.json())
     .then(resObj => {
         resObj.data.forEach(chat => existingChats_senderId.push(chat.sender_id));
@@ -137,14 +140,16 @@ newChatBubble.addEventListener('click', function(event) {
 const createChatBubble = (newMessage) => {
     let chatBubble = document.createElement('div');
     let inOut;
-    if(newMessage.sender_id === userId) {
+    if(newMessage.senderId === +userId) {
         inOut = "out";
     } else {
         inOut = "in"
     }
     chatBubble.classList.add("chat-bubble", inOut);
     let p = document.createElement('p');
-    p.innerHTML = newMessage.message;
+    p.innerHTML = newMessage.content;
+    console.log(newMessage.senderId);
+    console.log(newMessage.userId); //undefined
     chatBubble.appendChild(p);
     document.getElementById('chat-container-wrapper').prepend(chatBubble);
 }
@@ -157,53 +162,53 @@ function createChatPreview (chatPreviewObj) {
     let chatPreviewBox = document.createElement('div');
     chatPreviewBox.classList.add("individual-msg-preview-box");
     // set an attribute (that is then used to identify a specific chat for a click listener later)
-    chatPreviewBox.setAttribute('data-chat_id', chatPreviewObj.chat_id);
-    chatPreviewBox.setAttribute('data-sender_id', chatPreviewObj.sender_id);
+    chatPreviewBox.setAttribute('data-chat_id', chatPreviewObj.chatId);
+//    chatPreviewBox.setAttribute('data-sender_id', chatPreviewObj.senderId);
     chatPreviewBox.addEventListener('click', chatPreviewClick);
 
     // create 3 children for image, message and date
     // 1) senderPic div and image
-    let senderPic = document.createElement('div');
-    senderPic.classList.add("img-wrap");
-    senderPic.setAttribute('data-chat_id', chatPreviewObj.chat_id);
-    senderPic.setAttribute('data-sender_id', chatPreviewObj.sender_id);
+    let chatPhoto = document.createElement('div');
+    chatPhoto.classList.add("img-wrap");
+    chatPhoto.setAttribute('data-chat_id', chatPreviewObj.chatId);
+//    senderPic.setAttribute('data-sender_id', chatPreviewObj.senderId);
     let img = document.createElement('img');
-    img.setAttribute('data-chat_id', chatPreviewObj.chat_id);
-    img.setAttribute('data-sender_id', chatPreviewObj.sender_id);
-    img.setAttribute("src", chatPreviewObj.photo_url);
-    img.setAttribute("alt", "user's profile pic icon");
-    senderPic.appendChild(img);
+    img.setAttribute('data-chat_id', chatPreviewObj.chatId);
+//    img.setAttribute('data-sender_id', chatPreviewObj.senderId);
+    img.setAttribute("src", chatPreviewObj.chatPhotoUrl);
+    img.setAttribute("alt", "chat photo icon");
+    chatPhoto.appendChild(img);
 
     // 2) message div
     let message = document.createElement('div');
-    message.setAttribute('data-chat_id', chatPreviewObj.chat_id);
-    message.setAttribute('data-sender_id', chatPreviewObj.sender_id);
+    message.setAttribute('data-chat_id', chatPreviewObj.chatId);
+//    message.setAttribute('data-sender_id', chatPreviewObj.senderId);
     message.classList.add("message-text-wrap");
     // add 2 paragraphs for name of sender and sender message preview
-    let senderName = document.createElement('p');
-    senderName.setAttribute('data-chat_id', chatPreviewObj.chat_id);
-    senderName.setAttribute('data-sender_id', chatPreviewObj.sender_id);
-    senderName.innerHTML = chatPreviewObj.chat_name; // 'chat_name' is a data element from the API
-    message.appendChild(senderName);
+    let chatName = document.createElement('p');
+    chatName.setAttribute('data-chat_id', chatPreviewObj.chatId);
+//    senderName.setAttribute('data-sender_id', chatPreviewObj.senderId);
+    chatName.innerHTML = chatPreviewObj.chatName; // 'chat_name' is a data element from the API
+    message.appendChild(chatName);
 
-    let senderMsgPreview = document.createElement('p');
-    senderMsgPreview.setAttribute('data-chat_id', chatPreviewObj.chat_id);
-    senderMsgPreview.setAttribute('data-sender_id', chatPreviewObj.sender_id);
-    senderMsgPreview.innerHTML = chatPreviewObj.last_message;
-    message.appendChild(senderMsgPreview);
+    let lastMsgPreview = document.createElement('p');
+    lastMsgPreview.setAttribute('data-chat_id', chatPreviewObj.chatId);
+//    senderMsgPreview.setAttribute('data-sender_id', chatPreviewObj.senderId);
+    lastMsgPreview.innerHTML = chatPreviewObj.lastMsgContent;
+    message.appendChild(lastMsgPreview);
 
     let date = document.createElement('div');
     date.classList.add("date-wrap");
-    date.setAttribute('data-chat_id', chatPreviewObj.chat_id);
-    date.setAttribute('data-sender_id', chatPreviewObj.sender_id);
+    date.setAttribute('data-chat_id', chatPreviewObj.chatId);
+//    date.setAttribute('data-sender_id', chatPreviewObj.senderId);
     let msgDate = document.createElement('p');
-    msgDate.setAttribute('data-chat_id', chatPreviewObj.chat_id);
-    msgDate.setAttribute('data-sender_id', chatPreviewObj.sender_id);
-    msgDate.innerHTML = new Date(chatPreviewObj.date_sent).toLocaleDateString();
+    msgDate.setAttribute('data-chat_id', chatPreviewObj.chatId);
+//    msgDate.setAttribute('data-sender_id', chatPreviewObj.senderId);
+    msgDate.innerHTML = new Date(chatPreviewObj.lastMsgtimestamp).toLocaleDateString();
     date.appendChild(msgDate);
 
     //append all children to parent div (chatPreviewBox)
-    chatPreviewBox.appendChild(senderPic);
+    chatPreviewBox.appendChild(chatPhoto);
     chatPreviewBox.appendChild(message);
     chatPreviewBox.appendChild(date);
 

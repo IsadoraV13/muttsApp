@@ -2,7 +2,6 @@ package com.muttsApp.controller;
 
 
 import com.muttsApp.POJOs.User;
-import com.muttsApp.service.LoginService;
 import com.muttsApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -16,10 +15,9 @@ import javax.validation.Valid;
 
 // the controller uses methods from the service class
 @Controller
-public class LoginController {
+public class WebController {
 
     @Autowired
-    private LoginService loginService;
     private UserService userService;
 
     @RequestMapping(value={"/", "/login"}, method = RequestMethod.GET)
@@ -38,7 +36,7 @@ public class LoginController {
     @RequestMapping(value = "/registration", method = RequestMethod.POST)
     public String createNewUser(@Valid User user, BindingResult bindingResult, Model model) {
 
-        User userExists = loginService.findUserByEmail(user.getEmail());
+        User userExists = userService.findUserByEmail(user.getEmail());
 
         if (userExists != null) {
             bindingResult
@@ -52,7 +50,7 @@ public class LoginController {
             return "registration";
 
         } else {
-            loginService.saveUser(user);
+            userService.saveUser(user);
             model.addAttribute("successMessage", user.getFirstName() + ", you have been successfully registered!");
             model.addAttribute("user", new User());
             return "registration";
@@ -61,23 +59,17 @@ public class LoginController {
     }
     @RequestMapping(value="/home", method = RequestMethod.GET)
     public String index(Authentication auth, Model model){
-        int user_id = loginService.findUserByEmail(auth.getName()).getUserId();
+        int user_id = userService.findUserByEmail(auth.getName()).getUserId();
         model.addAttribute("user_id", user_id);
-        return "user";
+        return "home";
     }
 
-//    @RequestMapping(value="/user")
-//    public String user(Authentication authentication){
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//        System.out.println("User has authorities: " + userDetails.getAuthorities());
-//        return "user";
-//    }
-//
-//    @RequestMapping(value="/admin")
-//    public String admin(Model model){
-//        return "admin";
-//
-//    }
+
+    @RequestMapping(value="/admin")
+    public String admin(Model model){
+        return "admin";
+
+    }
 
     @RequestMapping(value="/403")
     public String Error403(){
