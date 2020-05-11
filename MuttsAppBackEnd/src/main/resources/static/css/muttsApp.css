@@ -168,9 +168,15 @@ header {
     align-items: flex-start;
     justify-content: space-around; /* space items horizontally */
     border-bottom: 0.1px solid #d9d9d8;
+    font-style: italic;
 }
-.message-text-wrap > p {
+.message-text-wrap {
     margin: 0;
+}
+
+.chat-name {
+    margin: 0;
+    font-style: bold;
 }
 
 .individual-msg-preview-box > .date-wrap {
@@ -287,6 +293,8 @@ input[name="message"] {
     border: none;
     background-color: #ededed;
 }
+
+.modal-dialog
 
 #logIn-signUp {
     width: 100px;

@@ -1,11 +1,13 @@
 package com.muttsApp.POJOs;
 
+import java.util.Date;
+
 public class MessagePreview {
     private int chatId;
     private String chatName;
     private String chatPhotoUrl;
     private String lastMsgContent;
-    private String lastMsgtimestamp;
+    private Date lastMsgtimestamp;
 
     public MessagePreview() {
     }
@@ -42,11 +44,22 @@ public class MessagePreview {
         this.lastMsgContent = lastMsgContent;
     }
 
-    public String getLastMsgtimestamp() {
+    public Date getLastMsgtimestamp() {
         return lastMsgtimestamp;
     }
 
-    public void setLastMsgtimestamp(String lastMsgtimestamp) {
+    public void setLastMsgtimestamp(Date lastMsgtimestamp) {
         this.lastMsgtimestamp = lastMsgtimestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "MessagePreview{" +
+                "chatId=" + chatId +
+                ", chatName='" + chatName + '\'' +
+                ", chatPhotoUrl='" + chatPhotoUrl + '\'' +
+                ", lastMsgContent='" + lastMsgContent + '\'' +
+                ", lastMsgtimestamp='" + lastMsgtimestamp + '\'' +
+                '}';
     }
 }

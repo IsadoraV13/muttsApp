@@ -23,18 +23,15 @@ let userId = document.getElementById('user_id').value;
 //************************************************************
 // and then creates each chatBubble for the chat_id clicked
 function chatPreviewClick(event) {
-    console.log()
     let chatId = event.target.dataset.chat_id; // assign 'chatId' to the data attribute 'chat_id' that we assigned (in createMsgPreview)
-    // to the various elements of the preview box (these are the targets of the click event) - and which hold the corresponding
+    // to the various elements of the preview box (these are the targets of the click event) - each of which holds the corresponding
     // chat ids for each preview
-//    let senderId = event.target.dataset.sender_id;
     fetch(`/chats/${chatId}`)
     .then(res => res.json())
     .then(resObj => {
         // to only get the chat messages relevant to this chat in the chatBubble wrapper, reset the innerHTML to null every time
         document.getElementById('chat-container-wrapper').innerHTML = "";
         document.getElementById("send-message").dataset.chat_id = chatId;
-        console.log(resObj)
         resObj.data.forEach(chatBubbleObj => {
             createChatBubble(chatBubbleObj)
         })
@@ -56,9 +53,10 @@ let messageForm = document.getElementById("send-message");
 messageForm.addEventListener('submit', function (event) {
     event.preventDefault();
     let newMessage = document.getElementById('new-message').value;
-    let newMsgObj = { // our API documentation says we need a senderId, a chatId, and a message content
-        senderId: userId,
-        chatId: event.target.dataset.chat_id, //how do we get the chat-id?
+    let userId = document.getElementById('user_id').value;
+    let newMsgObj = { // our API documentation says we need a senderId, a chatId, and a message content (& timestamp??)
+        senderId: parseInt(userId),
+        chatId: event.target.dataset.chat_id,
         content: newMessage
     }
     createChatBubble(newMsgObj);
@@ -69,7 +67,7 @@ messageForm.addEventListener('submit', function (event) {
 //**************************************
 // a POST request to post/send a new msg
 //**************************************
-function sendNewMessage(newMsg) { // this message object contains attributes stated in lines 61-63
+function sendNewMessage(newMsg) { // this message object contains attributes stated in lines 59-61
     // let postData = {
     //     "sender_id": '',
     //     "chat_id": '',
@@ -82,51 +80,111 @@ function sendNewMessage(newMsg) { // this message object contains attributes sta
             'Access-Control-Allow-Headers': "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
             'Access-Control-Allow-Origin': "*"
         },
-        body: JSON.stringify(newMsg)
+        body: JSON.stringify(newMsg) // converts it to String to post
     }
     let chatId = newMsg.chatId;
-    fetch(`/chats/${chatId}/message`, postParams) //`${baseUrl}/${userId}/chat`
+    fetch(`/chats/${chatId}/message`, postParams)
          .then(res => res.json())
-         .then(res => console.log(res))
 }
 
-//************************************************************
-// click listener to create a new (group) chat
-//************************************************************
-let newChatBubble = document.getElementById("new-chat");
-let allUserIdArr = [];
-let existingChats_senderId = [];
-let remainingUserIds =[];
-newChatBubble.addEventListener('click', function(event) {
-    // Step 1: fetch all possible users
-    fetch(`${baseUrl}/`)
-    //then extract their user ids
-    .then(res => res.json())
-    .then(resObj => {
-        resObj.data.forEach(user => allUserIdArr.push(user.id));
-        console.log(resObj.data);
-        console.log(allUserIdArr); // this is incorrect? because all Ids are 0
-    })
-    // Step 2: extract users we already have chats with
-    fetch(`${baseUrl}/${userId}/chats/`)
-    .then(res => res.json())
-    .then(resObj => {
-        resObj.data.forEach(chat => existingChats_senderId.push(chat.sender_id));
-        console.log(resObj.data);
-        console.log(existingChats_senderId);
-    })
-    // compare the 2 arrays
-    allUserIdArr.sort();
-    existingChats_senderId.sort();
-    for(var i = 0; i < allUserIdArr.length; i ++) {
-        if(existingChats_senderId.indexOf(allUserIdArr[i]) > -1){
-            remainingUserIds.push(allUserIdArr[i]);
-        }
-    }
-    console.log(remainingUserIds)
-    return remainingUserIds;
 
-})
+//************************************************************
+// click listener to create a new chat
+//************************************************************
+let newChatBtn = document.getElementById("new-chat-btn");
+let newChatModalBody = document.getElementById("new-chat-modal-body");
+newChatModalBody.innerHTML = "now loading...";
+newChatBtn.addEventListener('click', findUsersToChat)
+
+
+//************************************************************
+// function to determine who we can start a new duo chat with >>improvement: start new group chat
+//************************************************************
+function findUsersToChat() {
+    let remainingUsers =[];
+    const p1 = fetch(`${baseUrl}`); //fetch all users
+    const p2 = fetch(`${baseUrl}/${userId}/duoUsers`); //fetch all users we already have duo chats with
+
+    Promise.all([p1, p2])
+        .then(results => Promise.all(results.map(res => res.json())))
+        .then(resp => {
+            let allUsers = resp[0].data;
+            let existingDuoUserIds = resp[1].data
+
+            // compare the 2 arrays
+            for(var i = 0; i < allUsers.length; i ++) {
+                if(existingDuoUserIds.indexOf(allUsers[i].userId) === -1){
+                    remainingUsers.push(allUsers[i]);
+                }
+            }
+            console.log(remainingUsers)
+            populateNewChatDropDown(remainingUsers)
+        })
+}
+
+
+//************************************************************
+// populate list of users we can start a new chat with
+//************************************************************
+function populateNewChatDropDown(remainingUsers) {
+// we create a form element because we want to add a Submit event listener and it's harder to do with a number of Strings??
+    let form = document.createElement('form');
+    form.id = `new-chat-form`;
+
+    let formString = ``;
+    formString += `<input id="new-chat-user" type="text" list="users-list" class="form-control">`;
+    formString += `<datalist id="users-list">`
+//    formString += `select name="user"`
+    remainingUsers.forEach(user => { //below data-value is what gets passed, but the users only see firstName, lastName
+        formString += `<option data-value="${user.userId}" value="${user.firstName} ${user.lastName}"></option>`
+    })
+    formString += `</datalist>`
+    formString += `<input type="submit" class="btn btn-success">`
+    form.innerHTML = formString;
+    form.addEventListener('submit', newChatSubmit)
+    newChatModalBody.innerHTML = "";
+    newChatModalBody.appendChild(form);
+}
+
+function newChatSubmit(e){
+    e.preventDefault()
+    let options = document.getElementById('users-list').options;
+    console.log(document.getElementById('users-list').options)
+    console.log(e.target.elements)
+    let val = e.target.elements["new-chat-user"].value
+    console.log(val)
+    let chatName;
+    let duoUserId;
+    Array.from(options).forEach(option => {
+        if (option.value === val) { //what does this line do?
+            chatName = option.getAttribute('value');
+            duoUserId = option.getAttribute('data-value');
+        }
+    })
+    console.log(chatName)
+    console.log(userId)
+    console.log(duoUserId)
+
+    let postData = {
+        "chatName": chatName,
+        "chatPhotoUrl": 'https://cdn.pixabay.com/photo/2019/08/11/18/48/icon-4399681_960_720.png'
+    };
+
+    let postParams = {
+            method: 'POST', //*GET, POST, PUT, DELETE, etc
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Access-Control-Allow-Headers': "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+                'Access-Control-Allow-Origin': "*"
+            },
+            body: JSON.stringify(postData)
+        }
+
+        fetch(`/chats/${userId}/${duoUserId}`, postParams)
+             .then(res => res.json())
+}
+
+
 
 //*************************************
 // create each chat bubble on the right
@@ -138,9 +196,10 @@ newChatBubble.addEventListener('click', function(event) {
     // 4) append p to the div
     // 5) append the div to the relevant spot in the body (using an existing element id, chat-container in this instance)
 const createChatBubble = (newMessage) => {
+    let userId = document.getElementById('user_id').value;
     let chatBubble = document.createElement('div');
     let inOut;
-    if(newMessage.senderId === +userId) {
+    if(newMessage.senderId === parseInt(userId)) {
         inOut = "out";
     } else {
         inOut = "in"
@@ -148,8 +207,6 @@ const createChatBubble = (newMessage) => {
     chatBubble.classList.add("chat-bubble", inOut);
     let p = document.createElement('p');
     p.innerHTML = newMessage.content;
-    console.log(newMessage.senderId);
-    console.log(newMessage.userId); //undefined
     chatBubble.appendChild(p);
     document.getElementById('chat-container-wrapper').prepend(chatBubble);
 }
@@ -163,7 +220,6 @@ function createChatPreview (chatPreviewObj) {
     chatPreviewBox.classList.add("individual-msg-preview-box");
     // set an attribute (that is then used to identify a specific chat for a click listener later)
     chatPreviewBox.setAttribute('data-chat_id', chatPreviewObj.chatId);
-//    chatPreviewBox.setAttribute('data-sender_id', chatPreviewObj.senderId);
     chatPreviewBox.addEventListener('click', chatPreviewClick);
 
     // create 3 children for image, message and date
@@ -171,10 +227,8 @@ function createChatPreview (chatPreviewObj) {
     let chatPhoto = document.createElement('div');
     chatPhoto.classList.add("img-wrap");
     chatPhoto.setAttribute('data-chat_id', chatPreviewObj.chatId);
-//    senderPic.setAttribute('data-sender_id', chatPreviewObj.senderId);
     let img = document.createElement('img');
     img.setAttribute('data-chat_id', chatPreviewObj.chatId);
-//    img.setAttribute('data-sender_id', chatPreviewObj.senderId);
     img.setAttribute("src", chatPreviewObj.chatPhotoUrl);
     img.setAttribute("alt", "chat photo icon");
     chatPhoto.appendChild(img);
@@ -182,28 +236,23 @@ function createChatPreview (chatPreviewObj) {
     // 2) message div
     let message = document.createElement('div');
     message.setAttribute('data-chat_id', chatPreviewObj.chatId);
-//    message.setAttribute('data-sender_id', chatPreviewObj.senderId);
-    message.classList.add("message-text-wrap");
+    message.setAttribute("class", "message-text-wrap");
     // add 2 paragraphs for name of sender and sender message preview
     let chatName = document.createElement('p');
-    chatName.setAttribute('data-chat_id', chatPreviewObj.chatId);
-//    senderName.setAttribute('data-sender_id', chatPreviewObj.senderId);
-    chatName.innerHTML = chatPreviewObj.chatName; // 'chat_name' is a data element from the API
+    chatName.setAttribute("class", "chat-name");
+    chatName.innerHTML = chatPreviewObj.chatName; // 'chatName' is a data element from the API
     message.appendChild(chatName);
 
     let lastMsgPreview = document.createElement('p');
     lastMsgPreview.setAttribute('data-chat_id', chatPreviewObj.chatId);
-//    senderMsgPreview.setAttribute('data-sender_id', chatPreviewObj.senderId);
     lastMsgPreview.innerHTML = chatPreviewObj.lastMsgContent;
     message.appendChild(lastMsgPreview);
 
     let date = document.createElement('div');
     date.classList.add("date-wrap");
     date.setAttribute('data-chat_id', chatPreviewObj.chatId);
-//    date.setAttribute('data-sender_id', chatPreviewObj.senderId);
     let msgDate = document.createElement('p');
     msgDate.setAttribute('data-chat_id', chatPreviewObj.chatId);
-//    msgDate.setAttribute('data-sender_id', chatPreviewObj.senderId);
     msgDate.innerHTML = new Date(chatPreviewObj.lastMsgtimestamp).toLocaleDateString();
     date.appendChild(msgDate);
 

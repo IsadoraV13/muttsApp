@@ -3,6 +3,7 @@ package com.muttsApp.POJOs;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name="message")
@@ -14,8 +15,9 @@ public class Message {
     private String content;
     private int senderId;
     private int chatId;
-    @Column(columnDefinition = "timestamp default current_timestamp")
-    private String timestamp;
+    @Column(columnDefinition = "timestamp default current_timestamp", updatable= false, insertable=false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp;
 
     public Message() {
     }
@@ -52,11 +54,11 @@ public class Message {
         this.chatId = chatId;
     }
 
-    public String getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 }

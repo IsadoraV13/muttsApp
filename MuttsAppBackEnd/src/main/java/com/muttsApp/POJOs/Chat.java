@@ -19,7 +19,6 @@ public class Chat {
 // all users associated with a certain chatId are recipients except the sender
 // the senderId is present in the message object
     private String chatPhotoUrl;
-    private int adminUserId;
 
 
     public Chat() {
@@ -47,14 +46,6 @@ public class Chat {
 
     public void setChatPhotoUrl(String chatPhotoUrl) {
         this.chatPhotoUrl = chatPhotoUrl;
-    }
-
-    public int getAdminUserId() {
-        return adminUserId;
-    }
-
-    public void setAdminUserId(int adminUserId) {
-        this.adminUserId = adminUserId;
     }
 
 }

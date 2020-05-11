@@ -1,5 +1,6 @@
 package com.muttsApp.controller;
 
+import com.muttsApp.POJOs.Chat;
 import com.muttsApp.POJOs.Message;
 import com.muttsApp.POJOs.ResponseObject;
 import com.muttsApp.service.ChatService;
@@ -15,6 +16,13 @@ public class ChatController {
 
     @Autowired
     private ChatService chatService;
+
+    @GetMapping
+    public ResponseObject<List<Chat>> ViewAllChats() {
+        ResponseObject<List<Chat>> res = new ResponseObject();
+        res.setData(chatService.listAllChats());
+        return res;
+    }
 
     @GetMapping("/{chatId}")
     // this should return all the messages in this chat
@@ -36,6 +44,15 @@ public class ChatController {
     public ResponseObject<Message> createMessage(@RequestBody Message msg) {
         ResponseObject<Message> res = new ResponseObject();
         res.setData(chatService.saveMessage(msg));
+        return res;
+    }
+
+    @PostMapping("/{userId}/{duoUserId}")
+    public ResponseObject<Chat> createChat(@RequestBody Chat chat,
+                                           @PathVariable(name = "userId") int userId,
+                                           @PathVariable(name = "duoUserId") int duoUserId) {
+        ResponseObject<Chat> res = new ResponseObject();
+        res.setData(chatService.saveChat(chat, userId, duoUserId));
         return res;
     }
 

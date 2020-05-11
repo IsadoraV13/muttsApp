@@ -12,6 +12,24 @@
 </head>
 <body>
 <input type="hidden" th:value="${user_id}" id="user_id"></input>
+
+<!-- Modal -->
+<div class="modal fade" id="new-chat-modal" tabindex="-1" role="dialog" aria-labelledby="ModalTitle" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="ModalTitle">Who would you like to start a new chat with?</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div id="new-chat-modal-body" class="modal-body">
+				Loading...
+			</div>
+		</div>
+	</div>
+</div>
+
 <header>
 	<div id="header-sidebar">
 		<div id="profile-pic" class="img-wrap">
@@ -29,11 +47,9 @@
 					</button>
 				</li>
 				<li>
-					<!-- Icon 2 -->
-					<button class="svg-wrap" >
-<!--						Launch demo modal
-type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"-->
-						<svg id="new-chat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+					<!-- New chat icon to trigger modal  -->
+					<button id="new-chat-btn" class="svg-wrap" data-toggle="modal" data-target="#new-chat-modal">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
 							<path fill="currentColor"
 								  d="M19.005 3.175H4.674C3.642 3.175 3 3.789 3 4.821V21.02l3.544-3.514h12.461c1.033 0 2.064-1.06 2.064-2.093V4.821c-.001-1.032-1.032-1.646-2.064-1.646zm-4.989 9.869H7.041V11.1h6.975v1.944zm3-4H7.041V7.1h9.975v1.944z">
 							</path>
@@ -127,25 +143,6 @@ type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleM
 		</div>
 		<!-- message-box is where you type a new message -->
 		<div class="message-box">
-			<div class="modal" tabindex="-1" role="dialog">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="Start a new chat">Modal title</h5>
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>
-						</div>
-						<div class="modal-body">
-							<p>Select who you would like to start a chat with.</p>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-primary">Start chat</button>
-							<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-						</div>
-					</div>
-				</div>
-			</div>
 			<button class="svg-wrap">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
 					<path opacity=".45" fill="#263238"
@@ -169,6 +166,7 @@ type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleM
 	</div>
 </div>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script th:src="@{js/muttsApp.js}"></script>
 </body>
 </html>

@@ -8,7 +8,6 @@ import com.muttsApp.POJOs.User;
 import com.muttsApp.service.ChatService;
 import com.muttsApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +27,7 @@ public class UserController {
 
     // at first (when we don't have contacts, every user can see this - but then only the admin should see this)
     @GetMapping
-    public ResponseObject<List<User>> ViewAllUsers(Model model) {
+    public ResponseObject<List<User>> ViewAllUsers() {
         ResponseObject<List<User>> res = new ResponseObject();
         res.setData(userService.listAllUsers());
         return res;
@@ -65,5 +64,27 @@ public class UserController {
         return res;
     }
 
+    @GetMapping("/{userId}/groups")
+    // this should return all chats that are group chats
+    public ResponseObject<List<Chat>> viewGroupChats(@PathVariable(name = "userId") int userId) {
+        ResponseObject<List<Chat>> res = new ResponseObject();
+        res.setData(chatService.listGroupChats(userId));
+        return res;
+    }
 
+    @GetMapping("/{userId}/duo")
+    // this should return all chats that are duo chats
+    public ResponseObject<List<Chat>> viewDuoChats(@PathVariable(name = "userId") int userId) {
+        ResponseObject<List<Chat>> res = new ResponseObject();
+        res.setData(chatService.listDuoChats(userId));
+        return res;
+    }
+
+    @GetMapping("/{userId}/duoUsers")
+    // this should return all chats that are duo chats
+    public ResponseObject<List<Integer>> viewDuoChatUsers(@PathVariable(name = "userId") int userId) {
+        ResponseObject<List<Integer>> res = new ResponseObject();
+        res.setData(chatService.listUsersIdsInDuoChat(userId));
+        return res;
+    }
 }

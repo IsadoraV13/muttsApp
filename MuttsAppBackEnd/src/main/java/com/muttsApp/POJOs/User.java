@@ -24,8 +24,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String profilePicUrl;
-//    @Column(name = "roleId", table = "userrole", columnDefinition = "int default 1")
-//    private Integer roleId;
+
     @ManyToMany(cascade = { CascadeType.ALL })
     @JoinTable(
             name = "userrole",
@@ -132,11 +131,4 @@ public class User {
         this.userchat = userchat;
     }
 
-//        public Integer getRoleId() {
-//        return roleId;
-//    }
-//
-//    public void setRoleId(Integer roleId) {
-//        this.roleId = roleId;
-//    }
 }
