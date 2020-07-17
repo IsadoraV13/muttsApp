@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 
 //the service uses methods from the userRepo interface
@@ -50,8 +47,10 @@ public class ChatService {
     public Chat saveChat(Chat newChat, int userId, int duoUserId) {
         User user = userRepo.getOne(userId);
         User duoUser = userRepo.getOne(duoUserId);
-        user.setUserchat(new HashSet<Chat>(Arrays.asList(newChat)));
-        duoUser.setUserchat(new HashSet<Chat>(Arrays.asList(newChat)));
+        Set<Chat> userChats = user.getUserchat();
+        userChats.add(newChat);
+        Set<Chat> DuoUserChats = duoUser.getUserchat();
+        DuoUserChats.add(newChat);
         return chatRepo.save(newChat);
     }
 
